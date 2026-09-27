@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ink:inkmanifest xmlns:ink="http://schemas.microsoft.com/ink/2003">
+  <ink:inkfile>
+    <ink:inkfilename>reframe-engine.lnk</ink:inkfilename>
+    <ink:inktarget>C:\Users\MDR\Documents\Ai projects\Clips Workstream\.claude\worktrees\agent-a998d4ce7280cd01f\reframe-engine\launch.bat</ink:inktarget>
+    <ink:inkarguments></ink:inkarguments>
+    <ink:inkworkingdir>C:\Users\MDR\Documents\Ai projects\Clips Workstream\.claude\worktrees\agent-a998d4ce7280cd01f\reframe-engine</ink:inkworkingdir>
+    <ink:inkicon>C:\Users\MDR\Documents\Ai projects\Clips Workstream\.claude\worktrees\agent-a998d4ce7280cd01f\reframe-engine\reframe-engine.ico</ink:inkicon>
+  </ink:inkfile>
+</ink:inkmanifest>

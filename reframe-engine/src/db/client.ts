@@ -64,9 +64,9 @@ class MockDatabase implements Database {
     });
 
     // Initialize empty tables - use simple array
-    var names = ['projects', 'videos', 'clips', 'accounts', 'publishing_events'];
-    for (var i = 0; i < names.length; i++) {
-      this.tables.set(names[i], []);
+    const names = ['projects', 'videos', 'clips', 'accounts', 'publishing_events'];
+    for (const name of names) {
+      this.tables.set(name, []);
     }
   }
 
@@ -75,29 +75,27 @@ class MockDatabase implements Database {
   }
 
   query(sql: string): QueryResult {
-    var lowerSql = sql.toLowerCase().trim();
+    const lowerSql = sql.toLowerCase().trim();
 
     if (lowerSql.startsWith('select')) {
-      var tableMatch = sql.match(/from\s+(\w+)/i);
+      const tableMatch = sql.match(/from\s+(\w+)/i);
       if (tableMatch) {
-        var tableName = tableMatch[1];
-        var rows = this.tables.get(tableName) || [];
+        const tableName = tableMatch[1];
+        const rows = this.tables.get(tableName) || [];
 
-        var filteredRows = rows.slice();
+        let filteredRows = rows.slice();
 
-        var whereMatch = sql.match(/where\s+(.+?)(?:\s+(?:order|limit|group)|$)/i);
+        const whereMatch = sql.match(/where\s+(.+?)(?:\s+(?:order|limit|group)|$)/i);
         if (whereMatch) {
-          var conditions = whereMatch[1].split('and').map(function(c) { return c.trim(); });
-          var newFiltered = [];
-          for (var ri = 0; ri < filteredRows.length; ri++) {
-            var row = filteredRows[ri];
-            var ok = true;
-            for (var ci = 0; ci < conditions.length; ci++) {
-              var condition = conditions[ci];
-              var eqMatch = condition.match(/(\w+)\s*=\s*['"]?([^'"]+)['"]?/i);
+          const conditions = whereMatch[1].split('and').map(c => c.trim());
+          const newFiltered = [];
+          for (const row of filteredRows) {
+            let ok = true;
+            for (const condition of conditions) {
+              const eqMatch = condition.match(/(\w+)\s*=\s*['"]?([^'"]+)['"]?/i);
               if (eqMatch) {
-                var col = eqMatch[1];
-                var val = eqMatch[2];
+                const col = eqMatch[1];
+                const val = eqMatch[2];
                 if (String(row[col]) !== String(val)) {
                   ok = false;
                   break;
@@ -109,42 +107,49 @@ class MockDatabase implements Database {
           filteredRows = newFiltered;
         }
 
-        var limitMatch = sql.match(/limit\s+(\d+)/i);
+        const limitMatch = sql.match(/limit\s+(\d+)/i);
         if (limitMatch) {
           filteredRows = filteredRows.slice(0, parseInt(limitMatch[1], 10));
         }
 
         return {
-          all: function() { return filteredRows; },
-          get: function() { return filteredRows[0]; },
-          run: function() { return { changes: 0, lastInsertRowid: 0 }; }
+          all: () => filteredRows,
+          get: () => filteredRows[0],
+          run: () => ({ changes: 0, lastInsertRowid: 0 })
         };
       }
 
       return {
-        all: function() { return []; },
-        get: function() { return undefined; },
-        run: function() { return { changes: 0, lastInsertRowid: 0 }; }
+        all: () => [],
+        get: () => undefined,
+        run: () => ({ changes: 0, lastInsertRowid: 0 })
       };
+    }
+
+    return {
+      all: () => [],
+      get: () => undefined,
+      run: () => ({ changes: 0, lastInsertRowid: 0 })
+    };
   }
 
   run(sql: string, ...params: any[]): { changes: number; lastInsertRowid: number } {
-    var lowerSql = sql.toLowerCase().trim();
+    const lowerSql = sql.toLowerCase().trim();
 
     if (lowerSql.startsWith('insert')) {
-      var tableMatch = sql.match(/insert\s+into\s+(\w+)/i);
+      const tableMatch = sql.match(/insert\s+into\s+(\w+)/i);
       if (tableMatch) {
-        var tableName = tableMatch[1];
-        var rows = this.tables.get(tableName) || [];
+        const tableName = tableMatch[1];
+        const rows = this.tables.get(tableName) || [];
 
-        var valuesMatch = sql.match(/values\s*\(([^)]+)\)/i);
+        const valuesMatch = sql.match(/values\s*\(([^)]+)\)/i);
         if (valuesMatch) {
-          var values = valuesMatch[1].split(',').map(function(v) { return v.trim().replace(/['"]/g, ''); });
-          var columnsMatch = sql.match(/\(([^)]+)\)\s*values/i);
-          var columns = columnsMatch ? columnsMatch[1].split(',').map(function(c) { return c.trim(); }) : [];
+          const values = valuesMatch[1].split(',').map(v => v.trim().replace(/['"]/g, ''));
+          const columnsMatch = sql.match(/\(([^)]+)\)\s*values/i);
+          const columns = columnsMatch ? columnsMatch[1].split(',').map(c => c.trim()) : [];
 
-          var newRow = { id: rows.length + 1 };
-          for (var ci = 0; ci < columns.length; ci++) {
+          const newRow = { id: rows.length + 1 };
+          for (let ci = 0; ci < columns.length; ci++) {
             newRow[columns[ci]] = values[ci];
           }
 
@@ -162,6 +167,9 @@ class MockDatabase implements Database {
       }
 
       return { changes: 0, lastInsertRowid: 0 };
+    }
+
+    return { changes: 0, lastInsertRowid: 0 };
   }
 
   close(): void {
@@ -182,6 +190,7 @@ export class DatabaseClient {
   }
 
   private initializeSchema(): void {
+    // Schema already initialized in MockDatabase
   }
 
   query(sql: string, params: any[] = []): any[] {
@@ -189,7 +198,7 @@ export class DatabaseClient {
   }
 
   queryOne(sql: string, params: any[] = []): any | null {
-    var result = this.db.query(sql).get();
+    const result = this.db.query(sql).get();
     return result ?? null;
   }
 
@@ -198,8 +207,7 @@ export class DatabaseClient {
   }
 
   transaction(): Database {
-    return this.db.transaction(function() {
-    });
+    return this.db;
   }
 
   close(): void {
@@ -211,4 +219,4 @@ export class DatabaseClient {
   }
 }
 
-export var db = new DatabaseClient();
+export const db = new DatabaseClient();

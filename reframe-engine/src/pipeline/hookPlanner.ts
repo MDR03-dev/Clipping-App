@@ -239,22 +239,22 @@ export class HookPlanner {
     sceneCuts: number[],
     faceDetections: Array<{ frame: number; x: number; y: number; width: number; height: number; confidence: number }>
   ): number {
-    let confidence = 0.5;  # Base confidence
+    let confidence = 0.5;  // Base confidence
 
-    # More hooks increase confidence (up to a point)
+    // More hooks increase confidence (up to a point)
     const hookFactor = Math.min(0.2, hooks.length * 0.03);
     confidence += hookFactor;
 
-    # Audio quality affects confidence
+    // Audio quality affects confidence
     if (audioLevels.average > 0.3 && audioLevels.average < 0.9) {
-      confidence += 0.1;  # Good audio levels
+      confidence += 0.1;  // Good audio levels
     }
 
     if (audioLevels.silenceRatio < 0.4) {
-      confidence += 0.1;  # Not too much silence
+      confidence += 0.1;  // Not too much silence
     }
 
-    # Visual information availability
+    // Visual information availability
     if (faceDetections.length > 0) {
       confidence += 0.1;
     }
@@ -272,7 +272,7 @@ export class HookPlanner {
    * @returns Array of sentence strings
    */
   private splitIntoSentences(transcript: string): string[] {
-    # Simple sentence splitting on punctuation
+    // Simple sentence splitting on punctuation
     return transcript
       .split(/[.!?]+/)
       .map(s => s.trim())
